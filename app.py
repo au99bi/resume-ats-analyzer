@@ -30,87 +30,88 @@ LABELS = {
     "contact_and_sections": "Contact & Sections",
 }
 
-# ---------- Theme (sea green gradient + bright text) ----------
-THEME_CSS = """
+# ---------- Theme: baby pink gradient + bright, readable text ----------
+CUSTOM_CSS = """
 <style>
-/* Sea green gradient background */
+/* Baby pink gradient background */
 .stApp {
-    background: linear-gradient(135deg, #0b6e5f 0%, #1a9e8a 40%, #2ec4a6 70%, #0e8a78 100%);
+    background: linear-gradient(135deg, #ffe4ef 0%, #ffd1e3 50%, #ffc2da 100%);
     background-attachment: fixed;
 }
-
-/* Header bar transparent */
-header[data-testid="stHeader"] {
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #ffd6e7 0%, #ffbfd8 100%);
+}
+[data-testid="stHeader"] {
     background: transparent;
 }
 
-/* Sidebar */
-section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #08594d 0%, #0f7f6e 100%);
+/* Bright, vivid text (deep magenta so it stays readable on pink) */
+.stApp h1, .stApp h2, .stApp h3, .stApp h4 {
+    color: #c2185b !important;
+    font-weight: 800 !important;
 }
-
-/* Bright text everywhere */
-.stApp, .stApp p, .stApp span, .stApp label, .stApp li,
-.stApp h1, .stApp h2, .stApp h3, .stApp h4,
-.stApp div[data-testid="stMarkdownContainer"],
-.stApp div[data-testid="stMetricValue"],
-.stApp div[data-testid="stMetricLabel"],
-.stApp div[data-testid="stCaptionContainer"],
-section[data-testid="stSidebar"] * {
-    color: #ffffff !important;
+.stApp p, .stApp li, .stApp label, .stApp span,
+.stApp div[data-testid="stMarkdownContainer"] {
+    color: #6a0f3c;
 }
-
-/* Inputs: light background with dark text so they stay readable */
-.stTextInput input, .stTextArea textarea {
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    color: #0b3d36 !important;
+.stApp [data-testid="stCaptionContainer"] {
+    color: #d81b60 !important;
+    font-weight: 600;
 }
-.stTextInput input::placeholder, .stTextArea textarea::placeholder {
-    color: #5c8d85 !important;
+[data-testid="stMetricValue"] {
+    color: #e91e63 !important;
+    font-weight: 800;
 }
-
-/* File uploader box */
-div[data-testid="stFileUploaderDropzone"] {
-    background-color: rgba(255, 255, 255, 0.15) !important;
-    border: 1px dashed #ffffff !important;
-}
-div[data-testid="stFileUploaderDropzone"] button {
-    background-color: #ffffff !important;
-    color: #0b6e5f !important;
-}
-div[data-testid="stFileUploaderDropzone"] button * {
-    color: #0b6e5f !important;
-}
-
-/* Main button */
-.stButton > button {
-    background: #ffffff !important;
-    color: #0b6e5f !important;
-    border: none !important;
-    font-weight: 700 !important;
-    border-radius: 10px !important;
-}
-.stButton > button * {
-    color: #0b6e5f !important;
-}
-.stButton > button:hover {
-    background: #e6fff9 !important;
+[data-testid="stMetricLabel"] {
+    color: #c2185b !important;
+    font-weight: 700;
 }
 
 /* Progress bars */
 .stProgress > div > div > div > div {
-    background-color: #ffffff !important;
+    background: linear-gradient(90deg, #ff4d94, #e91e63);
+}
+
+/* Buttons */
+.stButton > button {
+    background: linear-gradient(90deg, #ff4d94, #e91e63);
+    color: #ffffff !important;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    padding: 0.6rem 1.4rem;
+    box-shadow: 0 4px 12px rgba(233, 30, 99, 0.35);
+}
+.stButton > button:hover {
+    background: linear-gradient(90deg, #e91e63, #c2185b);
+    color: #ffffff !important;
+}
+.stButton > button p {
+    color: #ffffff !important;
+}
+
+/* Inputs */
+.stTextArea textarea, .stTextInput input {
+    background-color: #fff5f9 !important;
+    color: #6a0f3c !important;
+    border: 1px solid #ff8fb8 !important;
+    border-radius: 10px;
+}
+[data-testid="stFileUploader"] section {
+    background-color: #fff5f9;
+    border: 2px dashed #ff4d94;
+    border-radius: 12px;
 }
 
 /* Footer */
 .dev-footer {
     text-align: center;
-    margin-top: 40px;
-    padding: 14px 0;
+    margin-top: 3rem;
+    padding: 1rem 0 0.5rem 0;
+    border-top: 2px solid #ff8fb8;
+    color: #c2185b;
     font-size: 1rem;
-    font-weight: 600;
-    color: #ffffff !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    font-weight: 700;
     letter-spacing: 0.5px;
 }
 </style>
@@ -302,14 +303,14 @@ def show_results(result: dict) -> None:
 
 def show_footer() -> None:
     st.markdown(
-        '<div class="dev-footer">Developed by Ubaid Ur Rehman</div>',
+        '<div class="dev-footer">✨ Developed by Ubaid Ur Rehman ✨</div>',
         unsafe_allow_html=True,
     )
 
 
 def main() -> None:
     st.set_page_config(page_title="ATS Resume Checker", page_icon="📄", layout="centered")
-    st.markdown(THEME_CSS, unsafe_allow_html=True)
+    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
     st.title("📄 ATS Resume Checker")
     st.write("Upload your resume to get an ATS score and clear tips to improve it.")
@@ -354,7 +355,7 @@ def main() -> None:
             except Exception as exc:
                 st.error(f"Something went wrong: {exc}")
 
-    # Footer always shows at the very end of the page
+    # Footer always appears at the very end of the page
     show_footer()
 
 
