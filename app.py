@@ -30,6 +30,92 @@ LABELS = {
     "contact_and_sections": "Contact & Sections",
 }
 
+# ---------- Theme (sea green gradient + bright text) ----------
+THEME_CSS = """
+<style>
+/* Sea green gradient background */
+.stApp {
+    background: linear-gradient(135deg, #0b6e5f 0%, #1a9e8a 40%, #2ec4a6 70%, #0e8a78 100%);
+    background-attachment: fixed;
+}
+
+/* Header bar transparent */
+header[data-testid="stHeader"] {
+    background: transparent;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #08594d 0%, #0f7f6e 100%);
+}
+
+/* Bright text everywhere */
+.stApp, .stApp p, .stApp span, .stApp label, .stApp li,
+.stApp h1, .stApp h2, .stApp h3, .stApp h4,
+.stApp div[data-testid="stMarkdownContainer"],
+.stApp div[data-testid="stMetricValue"],
+.stApp div[data-testid="stMetricLabel"],
+.stApp div[data-testid="stCaptionContainer"],
+section[data-testid="stSidebar"] * {
+    color: #ffffff !important;
+}
+
+/* Inputs: light background with dark text so they stay readable */
+.stTextInput input, .stTextArea textarea {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    color: #0b3d36 !important;
+}
+.stTextInput input::placeholder, .stTextArea textarea::placeholder {
+    color: #5c8d85 !important;
+}
+
+/* File uploader box */
+div[data-testid="stFileUploaderDropzone"] {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border: 1px dashed #ffffff !important;
+}
+div[data-testid="stFileUploaderDropzone"] button {
+    background-color: #ffffff !important;
+    color: #0b6e5f !important;
+}
+div[data-testid="stFileUploaderDropzone"] button * {
+    color: #0b6e5f !important;
+}
+
+/* Main button */
+.stButton > button {
+    background: #ffffff !important;
+    color: #0b6e5f !important;
+    border: none !important;
+    font-weight: 700 !important;
+    border-radius: 10px !important;
+}
+.stButton > button * {
+    color: #0b6e5f !important;
+}
+.stButton > button:hover {
+    background: #e6fff9 !important;
+}
+
+/* Progress bars */
+.stProgress > div > div > div > div {
+    background-color: #ffffff !important;
+}
+
+/* Footer */
+.dev-footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 14px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.5px;
+}
+</style>
+"""
+
 
 # ---------- Step 1: read the resume file ----------
 def extract_text(uploaded_file) -> str:
@@ -214,8 +300,17 @@ def show_results(result: dict) -> None:
             st.write("")
 
 
+def show_footer() -> None:
+    st.markdown(
+        '<div class="dev-footer">Developed by Ubaid Ur Rehman</div>',
+        unsafe_allow_html=True,
+    )
+
+
 def main() -> None:
     st.set_page_config(page_title="ATS Resume Checker", page_icon="📄", layout="centered")
+    st.markdown(THEME_CSS, unsafe_allow_html=True)
+
     st.title("📄 ATS Resume Checker")
     st.write("Upload your resume to get an ATS score and clear tips to improve it.")
 
@@ -238,27 +333,29 @@ def main() -> None:
     if st.button("Analyze my resume", type="primary"):
         if not api_key:
             st.error("Please enter your Gemini API key in the sidebar.")
-            return
-        if uploaded is None:
+        elif uploaded is None:
             st.error("Please upload a resume first.")
-            return
+        else:
+            try:
+                with st.spinner("Reading your resume..."):
+                    resume_text = extract_text(uploaded)
+                if len(resume_text) < 100:
+                    st.error(
+                        "I could not read enough text. If your PDF is a scanned image, "
+                        "please upload a text-based PDF or a DOCX file."
+                    )
+                else:
+                    with st.spinner("Analyzing with Gemini..."):
+                        client = genai.Client(api_key=api_key)
+                        result = analyze_resume(
+                            client, model.strip(), resume_text, job_description
+                        )
+                    show_results(result)
+            except Exception as exc:
+                st.error(f"Something went wrong: {exc}")
 
-        try:
-            with st.spinner("Reading your resume..."):
-                resume_text = extract_text(uploaded)
-            if len(resume_text) < 100:
-                st.error(
-                    "I could not read enough text. If your PDF is a scanned image, "
-                    "please upload a text-based PDF or a DOCX file."
-                )
-                return
-
-            with st.spinner("Analyzing with Gemini..."):
-                client = genai.Client(api_key=api_key)
-                result = analyze_resume(client, model.strip(), resume_text, job_description)
-            show_results(result)
-        except Exception as exc:
-            st.error(f"Something went wrong: {exc}")
+    # Footer always shows at the very end of the page
+    show_footer()
 
 
 if __name__ == "__main__":
